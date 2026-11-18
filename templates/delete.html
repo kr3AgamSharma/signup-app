@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account | FastAPI & Neon</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center px-4">
+
+    <div class="w-full max-w-md bg-slate-900 border border-rose-900/50 rounded-2xl shadow-2xl p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold tracking-tight text-rose-400">Delete Account</h1>
+            <p class="text-sm text-slate-400 mt-1">This action is permanent and cannot be undone</p>
+        </div>
+
+        <form id="deleteForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Username</label>
+                <input type="text" id="username" required 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-rose-500 transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                <input type="password" id="password" required 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-rose-500 transition">
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-rose-600 hover:bg-rose-500 text-white font-medium py-2.5 rounded-lg transition duration-200 shadow-lg shadow-rose-600/20 mt-2">
+                Permanently Delete Account
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-xs text-slate-400"><a href="/" class="text-indigo-400 hover:underline">Cancel and Return to Sign In</a></p>
+        </div>
+
+        <div id="responseMessage" class="mt-4 hidden p-3 rounded-lg text-sm text-center"></div>
+    </div>
+
+    <script>
+        document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgBox = document.getElementById('responseMessage');
+            
+            const payload = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+            };
+
+            if (!confirm("Are you 100% sure you want to delete your account? All data will be wiped.")) {
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/delete-account', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgBox.className = "mt-4 p-3 rounded-lg text-sm text-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+                    msgBox.textContent = data.message;
+                    msgBox.classList.remove('hidden');
+                    setTimeout(() => window.location.href = '/', 2000);
+                } else {
+                    throw new Error(data.detail || 'Deletion failed');
+                }
+            } catch (err) {
+                msgBox.className = "mt-4 p-3 rounded-lg text-sm text-center bg-rose-500/10 border border-rose-500/20 text-rose-400";
+                msgBox.textContent = `Error: ${err.message}`;
+                msgBox.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login | FastAPI & Neon</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center px-4">
+
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold tracking-tight text-white">Welcome Back</h1>
+            <p class="text-sm text-slate-400 mt-1">Sign in to your account</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Username</label>
+                <input type="text" id="username" required
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                <input type="password" id="password" required
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                <div class="text-right mt-1">
+                    <a href="/forgot-password" class="text-xs text-indigo-400 hover:underline">Forgot password?</a>
+                </div>
+                <div class="text-right mt-1">
+                    <a href="/delete-account" class="text-xs text-rose-400 hover:underline">Delete account</a>
+                </div>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg transition duration-200 shadow-lg shadow-indigo-600/20 mt-2">
+                log In
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-xs text-slate-400">Don't have an account? <a href="/signup"
+                    class="text-indigo-400 hover:underline">sign up</a></p>
+        </div>
+
+
+        <div id="responseMessage" class="mt-4 hidden p-3 rounded-lg text-sm text-center"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const msgBox = document.getElementById('responseMessage');
+            const payload = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgBox.className = "mt-4 p-3 rounded-lg text-sm text-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+                    msgBox.textContent = `Success! Welcome back, ${data.username}`;
+                    msgBox.classList.remove('hidden');
+                } else {
+                    throw new Error(data.detail || 'Login failed');
+                }
+            } catch (err) {
+                msgBox.className = "mt-4 p-3 rounded-lg text-sm text-center bg-rose-500/10 border border-rose-500/20 text-rose-400";
+                msgBox.textContent = `Error: ${err.message}`;
+                msgBox.classList.remove('hidden');
+            }
+
+        });
+
+        document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgBox = document.getElementById('deleteResponseMessage');
+
+            const payload = {
+                username: document.getElementById('del_username').value,
+                password: document.getElementById('del_password').value,
+            };
+
+            if (!confirm("Are you sure you want to permanently delete your account? This action cannot be undone.")) {
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/delete-account', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgBox.className = "mt-4 p-3 rounded-lg text-sm text-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+                    msgBox.textContent = data.message;
+                    msgBox.classList.remove('hidden');
+                    document.getElementById('deleteForm').reset();
+                } else {
+                    throw new Error(data.detail || 'Deletion failed');
+                }
+            } catch (err) {
+                msgBox.className = "mt-4 p-3 rounded-lg text-sm text-center bg-rose-500/10 border border-rose-500/20 text-rose-400";
+                msgBox.textContent = `Error: ${err.message}`;
+                msgBox.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

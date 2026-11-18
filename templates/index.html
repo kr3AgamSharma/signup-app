@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Signup | FastAPI & Neon</title>
+    <!-- Tailwind CSS CDN for rapid, modern styling -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center px-4">
+
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold tracking-tight text-white">Create an Account</h1>
+            <p class="text-sm text-slate-400 mt-1">Enter your details to register securely</p>
+        </div>
+
+        <form id="signupForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Username</label>
+                <input type="text" id="username" required 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">First Name</label>
+                    <input type="text" id="first_name" required 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Last Name</label>
+                    <input type="text" id="last_name" required 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
+                <input type="email" id="email" required 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Address</label>
+                <input type="text" id="address" required 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                <input type="password" id="password" required 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 transition">
+                <div class="text-right mt-1">
+                    <a href="/forgot-password" class="text-xs text-indigo-400 hover:underline">Forgot password?</a>
+                </div>
+            </div>
+            
+
+            <button type="submit" 
+                class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg transition duration-200 shadow-lg shadow-indigo-600/20 mt-2">
+                Sign Up
+            </button>
+
+        </form>
+
+        <!-- Added Login Link Here -->
+        <div class="text-center mt-6">
+            <p class="text-xs text-slate-400">Already have an account? <a href="/" class="text-indigo-400 hover:underline">log in</a></p>
+        </div>
+
+        <!-- Response message box -->
+        <div id="responseMessage" class="mt-4 hidden p-3 rounded-lg text-sm text-center"></div>
+
+        </form>
+
+        <!-- Response message box -->
+        <div id="responseMessage" class="mt-4 hidden p-3 rounded-lg text-sm text-center"></div>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const msgBox = document.getElementById('responseMessage');
+            
+            // Gather form data into an object matching UserCreate schema
+            const payload = {
+                username: document.getElementById('username').value,
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                password: document.getElementById('password').value,
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    msgBox.className = "mt-4 p-3 rounded-lg text-sm text-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+                    msgBox.textContent = `Success! Account created for user ID: ${data.id}`;
+                    msgBox.classList.remove('hidden');
+                    document.getElementById('signupForm').reset();
+                } else {
+                    throw new Error(data.detail || 'Signup failed');
+                }
+            } catch (err) {
+                msgBox.className = "mt-4 p-3 rounded-lg text-sm text-center bg-rose-500/10 border border-rose-500/20 text-rose-400";
+                msgBox.textContent = `Error: ${err.message}`;
+                msgBox.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
