@@ -10,9 +10,13 @@ from pathlib import Path
 
 app = FastAPI(title="secure signup app", version="1.0.0")
 
+origins = [
+    "https://signup-app-beta.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
