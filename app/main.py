@@ -2,7 +2,7 @@ from fastapi import FastAPI , Depends,status , HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List
-import model , schemas
+from app import model , schemas
 from database import Base, get_db , engine
 from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware
